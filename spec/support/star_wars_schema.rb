@@ -34,11 +34,13 @@ ShipType = GraphQL::ObjectType.define do
   field :name, types.String, 'The name of the ship.'
 end
 
-ShipConnection = Relay.connection_definitions(name: 'Ship', node_type: ShipType).values_at(:connection_type)
+ShipConnection = Relay.connection_definitions(name: 'Ship', node_type: ShipType)[:connection_type]
 
 FactionType = GraphQL::ObjectType.define do
   name 'Faction'
   description 'A faction in the Star Wars saga'
+  interfaces([NodeInterface])
+
   field :id, field: Relay.global_id_field('Faction')
   field :name, types.String, 'The name of the faction.'
   field :ships do
@@ -92,11 +94,11 @@ ShipMutation = Relay.mutation_with_client_mutation_id(
     }
 )
 
-
+#pry
 MutationType = GraphQL::ObjectType.define do
   name 'Mutation'
   field :introduceShip, field: ShipMutation
 end
 
-StarWarsSchema = GraphQL::Schema.new(query: QueryType, mutation: MutationType)
+StarWarsSchema = GraphQL::Schema.new(query: QueryType)
 

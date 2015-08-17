@@ -21,7 +21,7 @@ module Relay
       description 'Fetches an object given its ID'
       type node_interface
       argument :id, !types.ID, 'The ID of an object'
-      resolve -> (obj, arguments, context) { id_fetcher(arguments.id) }
+      resolve -> (_, args, _) { id_fetcher.call(args[:id]) }
     end
 
     {node_interface: node_interface, node_field: node_field}
