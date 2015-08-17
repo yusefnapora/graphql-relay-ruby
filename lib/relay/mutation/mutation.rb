@@ -1,4 +1,4 @@
-module GraphQL::Relay
+module Relay
 
   ##
   # Returns a field configuration for the mutation described by the

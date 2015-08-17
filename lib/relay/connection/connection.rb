@@ -1,5 +1,5 @@
 
-module GraphQL::Relay
+module Relay
 
   ##
   # The common page info type used by all connections
@@ -16,6 +16,17 @@ module GraphQL::Relay
 
   def resolve_maybe_thunk(thing_or_thunk)
     thing_or_thunk.is_a?(Proc) ? thing_or_thunk.call : thing_or_thunk
+  end
+
+  ##
+  # Returns input arguments for a connection type
+  def connection_args
+    {
+        before: GraphQL::Argument.define { type types.String },
+        after: GraphQL::Argument.define { type types.String },
+        first: GraphQL::Argument.define { type types.Int },
+        last: GraphQL::Argument.define { type types.Int }
+    }
   end
 
   ##
@@ -36,20 +47,20 @@ module GraphQL::Relay
         field_name = k.to_s.to_sym
         field field_name, v
       end
+    end
 
-      connection_type = GraphQL::ObjectType.define do
-        name "#{name}Connection"
-        description 'A connection to a list of items.'
-        field :pageInfo, !PageInfoType, 'Information to aid in pagination.'
-        field :edges, !edge_type, 'Information to aid in pagination.'
+    connection_type = GraphQL::ObjectType.define do
+      name "#{name}Connection"
+      description 'A connection to a list of items.'
+      field :pageInfo, !PageInfoType, 'Information to aid in pagination.'
+      field :edges, !edge_type, 'Information to aid in pagination.'
 
-        connection_fields.each do |k,v|
-          field_name = k.to_s.to_sym
-          field field_name, v
-        end
+      connection_fields.each do |k,v|
+        field_name = k.to_s.to_sym
+        field field_name, v
       end
+    end
 
       {edge_type: edge_type, connection_type: connection_type}
     end
-  end
 end

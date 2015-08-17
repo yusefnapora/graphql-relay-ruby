@@ -1,6 +1,6 @@
 require 'base64'
 
-module GraphQL::Relay
+module Relay
 
   ##
   # A simple function that accepts an array and connection arguments, and returns
@@ -14,7 +14,7 @@ module GraphQL::Relay
 
     # Slice with cursors
     start = ([get_offset(after, -1), -1].max) + 1
-    finish = [get_offset(before, edges.length + 1), edges.length +1].min
+    finish = [get_offset(before, edges.length + 1), (edges.length + 1)].min
     edges = edges.slice(start, finish)
     if edges.length == 0
       return empty_connection
@@ -74,14 +74,14 @@ module GraphQL::Relay
   # Creates the cursor string from an offset
   #
   def offset_to_cursor(offset)
-    Base64.encode("#{PREFIX}#{offset}")
+    Base64.strict_encode64("#{PREFIX}#{offset}")
   end
 
   ##
   # Re-derives the offset from the cursor string
   #
   def cursor_to_offset(cursor)
-    Base64.decode(cursor).slice(0, PREFIX.length).to_i(10)
+    Base64.strict_decode64(cursor).slice(0, PREFIX.length).to_i(10)
   end
 
   ##
