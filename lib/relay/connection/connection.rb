@@ -19,14 +19,17 @@ module Relay
   end
 
   ##
-  # Returns input arguments for a connection type
-  def connection_args
-    {
+  # Adds input arguments for a connection to the given GraphQL::Field
+  def connection_args(field)
+    args = {
         before: GraphQL::Argument.define { type types.String },
         after: GraphQL::Argument.define { type types.String },
         first: GraphQL::Argument.define { type types.Int },
         last: GraphQL::Argument.define { type types.Int }
     }
+    args.each do |name, arg|
+      field.arguments[name.to_s] = arg
+    end
   end
 
   ##
@@ -40,7 +43,7 @@ module Relay
     edge_type = GraphQL::ObjectType.define do
       name "#{name}Edge"
       description 'An edge in a connection.'
-      field :node, node_type, 'the item at teh end of the edge'
+      field :node, node_type, 'the item at the end of the edge'
       field :cursor, !types.String, 'A cursor for use in pagination'
 
       edge_fields.each do |k,v|
@@ -53,7 +56,7 @@ module Relay
       name "#{name}Connection"
       description 'A connection to a list of items.'
       field :pageInfo, !PageInfoType, 'Information to aid in pagination.'
-      field :edges, !edge_type, 'Information to aid in pagination.'
+      field :edges, !types[edge_type], 'Information to aid in pagination.'
 
       connection_fields.each do |k,v|
         field_name = k.to_s.to_sym

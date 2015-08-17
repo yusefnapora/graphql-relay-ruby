@@ -46,7 +46,7 @@ FactionType = GraphQL::ObjectType.define do
   field :ships do
     type ShipConnection
     description 'The ships used by the faction.'
-    arguments=(Relay.connection_args)
+    Relay.connection_args(self)
     resolve -> (faction, args, _) {
       Relay.connection_from_array(faction.ships.map {|id| get_ship(id)}, args)
     }

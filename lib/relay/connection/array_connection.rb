@@ -8,9 +8,10 @@ module Relay
   # so pagination will only work if the array is static.
   def connection_from_array(data, args)
     edges = data.each_with_index.map do |value, index|
-      {cursor: offset_to_cursor(index), node: value}
+      OpenStruct.new({cursor: offset_to_cursor(index), node: value})
     end
-    before, after, first, last = args.values_at(:before, :after, :first, :last)
+
+    before, after, first, last = [args[:before], args[:after], args[:first], args[:last]]
 
     # Slice with cursors
     start = ([get_offset(after, -1), -1].max) + 1
@@ -21,8 +22,8 @@ module Relay
     end
 
     # Save the pre-slice cursors
-    first_preslice_cursor = edges.first.cursor
-    last_preslice_cursor = edges.last.cursor
+    first_preslice_cursor = edges.first[:cursor]
+    last_preslice_cursor = edges.last[:cursor]
 
     # Slice with limits
     if first
@@ -39,15 +40,15 @@ module Relay
     # Construct the connection
     first_edge = edges.first
     last_edge = edges.last
-    {
+    OpenStruct.new({
         edges: edges,
-        pageInfo: {
-            startCursor: first_edge.cursor,
-            endCursor: last_edge.cursor,
-            hasPreviousPage: (first_edge.cursor != first_preslice_cursor),
-            hasNextPage: (last_edge.cursor != last_preslice_cursor)
-        }
-    }
+        pageInfo: OpenStruct.new({
+            startCursor: first_edge[:cursor],
+            endCursor: last_edge[:cursor],
+            hasPreviousPage: (first_edge[:cursor] != first_preslice_cursor),
+            hasNextPage: (last_edge[:cursor] != last_preslice_cursor)
+        })
+    })
   end
 
   ##
@@ -57,15 +58,15 @@ module Relay
   # Helper to get an empty connection.
   #
   def empty_connection
-    {
+    OpenStruct.new({
         edges: [],
-        pageInfo: {
+        pageInfo: OpenStruct.new({
             startCursor: nil,
             endCursor: nil,
             hasPreviousPage: false,
             hasNextPage: false
-        }
-    }
+        })
+    })
   end
 
   PREFIX = 'arrayconnection'
