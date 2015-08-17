@@ -69,7 +69,7 @@ module Relay
     })
   end
 
-  PREFIX = 'arrayconnection'
+  PREFIX = 'arrayconnection:'
 
   ##
   # Creates the cursor string from an offset
@@ -82,7 +82,12 @@ module Relay
   # Re-derives the offset from the cursor string
   #
   def cursor_to_offset(cursor)
-    Base64.strict_decode64(cursor).slice(0, PREFIX.length).to_i(10)
+    offset_str = Base64.strict_decode64(cursor)[PREFIX.length..-1]
+    begin
+      Integer(offset_str)
+    rescue
+      nil
+    end
   end
 
   ##
@@ -102,9 +107,6 @@ module Relay
       return default_offset
     end
     offset = cursor_to_offset(cursor)
-    if offset.respond_to?(integer?) && offset.integer?
-      return offset
-    end
-    default_offset
+    offset || default_offset
   end
 end
