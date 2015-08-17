@@ -45,17 +45,17 @@ module GraphQL
     end
 
     ##
-    # Creates the configuration for an id field on a node, using `to_global_id` to
+    # Creates an id field on a node, using `to_global_id` to
     # construct the ID from the provided typename. The type-specific ID is fetched
     # by calling idFetcher on the object, or if not provided, by accessing the `id`
     # property on the object.
     def global_id_field(type_name, id_fetcher = nil)
-      {
-          name: 'id',
-          description: 'The ID of an object',
-          type: GraphQL::NonNullType.new(of_type: GraphQL::ID_TYPE),
-          resolve: -> (obj, args, ctx) { to_global_id(type_name, id_fetcher || obj['id']) }
-      }
+      GraphQL::Field.define do
+          name 'id'
+          description  'The ID of an object'
+          type !types.ID
+          resolve -> (obj, args, ctx) { to_global_id(type_name, id_fetcher || obj['id']) }
+      end
     end
 
   end

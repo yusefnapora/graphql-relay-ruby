@@ -14,20 +14,16 @@ module GraphQL::Relay
   end
 
 
-  def resolveMaybeThunk(thingOrThunk)
-    thingOrThunk.is_a?(Proc) ? thingOrThunk.call : thingOrThunk
+  def resolve_maybe_thunk(thing_or_thunk)
+    thing_or_thunk.is_a?(Proc) ? thing_or_thunk.call : thing_or_thunk
   end
 
   ##
   # Returns a GraphQL::ObjectType for a connection with the given name,
   # and whose nodes are of the specified type.
-  def connection_definitions(config)
-    name = config[:name]
-    node_type = config[:node_type]
-    edge_fields = config[:edge_fields] || {}
-    edge_fields = resolveMaybeThunk(edge_fields)
-    connection_fields = config[:connection_fields] || {}
-    connection_fields = resolveMaybeThunk(connection_fields)
+  def connection_definitions(name: name, node_type: node_type, edge_fields: edge_fields = {}, connection_fields: connection_fields = {})
+    edge_fields = resolve_maybe_thunk(edge_fields)
+    connection_fields = resolve_maybe_thunk(connection_fields)
 
 
     edge_type = GraphQL::ObjectType.define do
