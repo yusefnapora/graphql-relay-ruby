@@ -42,12 +42,13 @@ DATA = {
 $next_ship = 9
 
 def create_ship(ship_name, faction_id)
-  $next_ship += 1
   ship_id = $next_ship
-  new_ship = {
+  $next_ship += 1
+  new_ship = OpenStruct.new({
       id: ship_id.to_s,
       name: ship_name
-  }
+  })
+
   DATA[:Ship][new_ship[:id]] = new_ship
   DATA[:Faction][faction_id].ships << new_ship.id
   new_ship

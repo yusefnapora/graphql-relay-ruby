@@ -71,34 +71,35 @@ end
 ShipMutation = Relay.mutation_with_client_mutation_id(
     name: 'IntroduceShip',
     input_fields: {
-        shipName: GraphQL::Field.define { type !types.String },
-        factionId: GraphQL::Field.define { type !types.ID }
+        shipName: GraphQL::Argument.define { type !types.String },
+        factionId: GraphQL::Argument.define { type !types.ID }
     },
     output_fields: {
         ship: GraphQL::Field.define {
           type ShipType
-          resolve -> (payload) { get_ship(payload[:shipId]) }
+          resolve -> (payload, _, _) { get_ship(payload[:shipId]) }
         },
         faction: GraphQL::Field.define {
           type FactionType
-          resolve -> (payload) { get_faction(payload[:factionId])}
+          resolve -> (payload, _, _) { get_faction(payload[:factionId])}
         }
     },
     mutate_and_get_payload: -> (args) {
-      ship_name, faction_id = args.values_at(:shipName, :factionId)
+      ship_name = args['shipName']
+      faction_id = args['factionId']
       new_ship = create_ship(ship_name, faction_id)
-      {
-          shipId: new_ship.id,
-          factionId: faction_id
-      }
+
+      OpenStruct.new({
+          'shipId' => new_ship.id,
+          'factionId' => faction_id
+      })
     }
 )
 
-#pry
 MutationType = GraphQL::ObjectType.define do
   name 'Mutation'
   field :introduceShip, field: ShipMutation
 end
 
-StarWarsSchema = GraphQL::Schema.new(query: QueryType)
+StarWarsSchema = GraphQL::Schema.new(query: QueryType, mutation: MutationType)
 
